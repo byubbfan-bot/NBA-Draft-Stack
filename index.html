@@ -67,7 +67,7 @@
             text-align: center;
             transition: 0.2s;
             position: relative;
-            min-height: 140px;
+            min-height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -81,6 +81,10 @@
             background: #333;
             transform: translateY(-3px);
             box-shadow: 0 4px 10px rgba(255,152,0,0.2);
+        }
+        .card.selected-pos {
+            border-color: #4caf50 !important;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
         }
         .card.disabled {
             opacity: 0.4;
@@ -116,6 +120,12 @@
             background: #4caf50;
             color: #fff;
             margin-top: 5px;
+        }
+        .badge.ovr-badge {
+            background: #2196f3;
+            color: #fff;
+            margin-top: 5px;
+            margin-left: 4px;
         }
         .pos-label {
             font-size: 0.8em;
@@ -231,10 +241,10 @@
 <body>
 <div class="container">
     <h1>🏀 NBA Strategy & Cap Simulation</h1>
-    <p class="subtitle">Both managers operate with a strict $15.0M budget. Challenge the line-up below.</p>
+    <p class="subtitle">Click any position card anytime to edit that pick. Keep an eye on player OVR ratings!</p>
     <div class="hud-bar">
-        <div class="hud-item">Total Cash Budget <span id="hud-bank">$15.0M</span></div>
-        <div class="hud-item">Current Draft Target <span id="hud-pos">PG</span></div>
+        <div class="hud-item">Remaining Cash Budget <span id="hud-bank">$15.0M</span></div>
+        <div class="hud-item">Editing Position <span id="hud-pos">PG</span></div>
     </div>
     <div id="opponent-section">
         <h2>Opponent Lineup</h2>
@@ -271,12 +281,22 @@
         let skin = skinColors[seed % skinColors.length];
         let hair = hairColors[(seed >> 2) % hairColors.length];
         let team = jerseyColors[(seed >> 4) % jerseyColors.length];
-        let background = "rgba(0,0,0,0.2)";
-        let matrix = [, , , , , , , ];
+        let background = "rgba(0,0,0,0.15)";
+        
+        let matrix = [,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+            [4,4,4,4,4,4,4,4]
+        ];
+        
         let html = '<div class="pixel-portrait">';
         for(let r=0; r<8; r++) {
             for(let c=0; c<8; c++) {
-                let code = matrix[r] ? matrix[r][c] : 0;
+                let code = matrix[r][c];
                 let color = background;
                 if(code === 1) color = hair;
                 if(code === 2) color = skin;
@@ -290,249 +310,201 @@
 
     const playersDB = {
         PG: [
-            { name: "Magic Johnson", ovr: 98 },
-            { name: "Stephen Curry", ovr: 96 },
-            { name: "Luka Doncic", ovr: 97 },
-            { name: "Allen Iverson", ovr: 93 },
-            { name: "Steve Nash", ovr: 92 },
-            { name: "Shai G.-Alexander", ovr: 95 },
-            { name: "Kyrie Irving", ovr: 90 },
-            { name: "Chris Paul", ovr: 89 },
-            { name: "Jalen Brunson", ovr: 91 },
-            { name: "Ja Morant", ovr: 90 },
-            { name: "Russell Westbrook", ovr: 88 },
-            { name: "John Stockton", ovr: 92 },
-            { name: "Jason Kidd", ovr: 90 },
-            { name: "Derrick Rose", ovr: 89 },
-            { name: "Tyrese Haliburton", ovr: 90 },
-            { name: "De'Aaron Fox", ovr: 89 },
-            { name: "Damian Lillard", ovr: 88 },
-            { name: "Trae Young", ovr: 87 },
-            { name: "LaMelo Ball", ovr: 86 },
-            { name: "Cade Cunningham", ovr: 86 }
+            { name: "Magic Johnson", ovr: 98 }, { name: "Stephen Curry", ovr: 96 }, { name: "Luka Doncic", ovr: 97 }, { name: "Allen Iverson", ovr: 93 }, { name: "Steve Nash", ovr: 92 },
+{ name: "Shai G.-Alexander", ovr: 95 }, { name: "Kyrie Irving", ovr: 90 }, { name: "Chris Paul", ovr: 89 }, { name: "Jalen Brunson", ovr: 91 }, { name: "Ja Morant", ovr: 90 },
+{ name: "Russell Westbrook", ovr: 88 }, { name: "John Stockton", ovr: 92 }, { name: "Jason Kidd", ovr: 90 }, { name: "Derrick Rose", ovr: 89 }, { name: "Tyrese Haliburton", ovr: 90 },
+{ name: "De'Aaron Fox", ovr: 89 }, { name: "Damian Lillard", ovr: 88 }, { name: "Trae Young", ovr: 87 }, { name: "LaMelo Ball", ovr: 86 }, { name: "Cade Cunningham", ovr: 86 }
         ],
         SG: [
-            { name: "Michael Jordan", ovr: 99 },
-            { name: "Kobe Bryant", ovr: 98 },
-            { name: "Dwyane Wade", ovr: 94 },
-            { name: "Anthony Edwards", ovr: 93 },
-            { name: "Devin Booker", ovr: 92 },
-            { name: "James Harden", ovr: 91 },
-            { name: "Ray Allen", ovr: 89 },
-            { name: "Donovan Mitchell", ovr: 91 },
-            { name: "Jaylen Brown", ovr: 90 },
-            { name: "Klay Thompson", ovr: 86 },
-            { name: "Reggie Miller", ovr: 90 },
-            { name: "Manu Ginobili", ovr: 88 },
-            { name: "Vince Carter", ovr: 91 },
-            { name: "Tracy McGrady", ovr: 93 },
-            { name: "Tyrese Maxey", ovr: 89 },
-            { name: "Desmond Bane", ovr: 86 },
-            { name: "Austin Reaves", ovr: 84 },
-            { name: "Tyler Herro", ovr: 85 },
-            { name: "Malik Monk", ovr: 83 },
-            { name: "CJ McCollum", ovr: 84 }
+            { name: "Michael Jordan", ovr: 99 }, { name: "Kobe Bryant", ovr: 98 }, { name: "Dwyane Wade", ovr: 94 }, { name: "Anthony Edwards", ovr: 93 }, { name: "Devin Booker", ovr: 92 },
+            { name: "James Harden", ovr: 91 }, { name: "Ray Allen", ovr: 89 }, { name: "Donovan Mitchell", ovr: 91 }, { name: "Jaylen Brown", ovr: 90 }, { name: "Klay Thompson", ovr: 86 },
+            { name: "Reggie Miller", ovr: 90 }, { name: "Manu Ginobili", ovr: 88 }, { name: "Vince Carter", ovr: 91 }, { name: "Tracy McGrady", ovr: 93 }, { name: "Tyrese Maxey", ovr: 89 },
+            { name: "Desmond Bane", ovr: 86 }, { name: "Austin Reaves", ovr: 84 }, { name: "Tyler Herro", ovr: 85 }, { name: "Malik Monk", ovr: 83 }, { name: "CJ McCollum", ovr: 84 }
         ],
         SF: [
-            { name: "LeBron James", ovr: 98 },
-            { name: "Larry Bird", ovr: 97 },
-            { name: "Kevin Durant", ovr: 95 },
-            { name: "Jayson Tatum", ovr: 94 },
-            { name: "Kawhi Leonard", ovr: 92 },
-            { name: "Carmelo Anthony", ovr: 90 },
-            { name: "Jimmy Butler", ovr: 89 },
-            { name: "Scottie Pippen", ovr: 91 },
-            { name: "Paul George", ovr: 88 },
-            { name: "Brandon Ingram", ovr: 86 },
-            { name: "Julius Erving", ovr: 94 },
-            { name: "Dominique Wilkins", ovr: 91 },
-            { name: "Paul Pierce", ovr: 89 },
-            { name: "Lauri Markkanen", ovr: 88 },
-            { name: "Mikal Bridges", ovr: 85 },
-            { name: "OG Anunoby", ovr: 85 },
-            { name: "Franz Wagner", ovr: 86 },
-            { name: "Demar DeRozan", ovr: 86 },
-            { name: "Michael Porter Jr.", ovr: 84 },
-            { name: "Khris Middleton", ovr: 84 }
+            { name: "LeBron James", ovr: 98 }, { name: "Larry Bird", ovr: 97 }, { name: "Kevin Durant", ovr: 95 }, { name: "Jayson Tatum", ovr: 94 }, { name: "Kawhi Leonard", ovr: 92 },
+            { name: "Carmelo Anthony", ovr: 90 }, { name: "Jimmy Butler", ovr: 89 }, { name: "Scottie Pippen", ovr: 91 }, { name: "Paul George", ovr: 88 }, { name: "Brandon Ingram", ovr: 86 },
+            { name: "Julius Erving", ovr: 94 }, { name: "Dominique Wilkins", ovr: 91 }, { name: "Paul Pierce", ovr: 89 }, { name: "Lauri Markkanen", ovr: 88 }, { name: "Mikal Bridges", ovr: 85 },
+            { name: "OG Anunoby", ovr: 85 }, { name: "Franz Wagner", ovr: 86 }, { name: "Demar DeRozan", ovr: 86 }, { name: "Michael Porter Jr.", ovr: 84 }, { name: "Khris Middleton", ovr: 84 }
         ],
         PF: [
-            { name: "Charles Barkley", ovr: 93 },
-            { name: "Zion Williamson", ovr: 88 },
-            { name: "Anthony Davis", ovr: 94 },
-            { name: "Paolo Banchero", ovr: 89 },
-            { name: "Domantas Sabonis", ovr: 88 },
-            { name: "Karl-Anthony Towns", ovr: 87 },
-            { name: "Dennis Rodman", ovr: 88 },
-            { name: "Chris Bosh", ovr: 88 },
-            { name: "Pau Gasol", ovr: 89 },
-            { name: "Amare Stoudemire", ovr: 87 },
-            { name: "Jaren Jackson Jr.", ovr: 87 },
-            { name: "Pascal Siakam", ovr: 88 },
-            { name: "Evan Mobley", ovr: 86 },
-            { name: "Aaron Gordon", ovr: 84 },
-            { name: "Julius Randle", ovr: 85 },
-            { name: "Kyle Kuzma", ovr: 83 },
-            { name: "Tim Duncan", ovr: 97 },
-            { name: "Giannis Antetokounmpo", ovr: 96 },
-            { name: "Kevin Garnett", ovr: 95 },
-            { name: "Dirk Nowitzki", ovr: 94 }
+            { name: "Charles Barkley", ovr: 93 }, { name: "Zion Williamson", ovr: 88 }, { name: "Anthony Davis", ovr: 94 }, { name: "Paolo Banchero", ovr: 89 }, { name: "Domantas Sabonis", ovr: 88 },
+            { name: "Karl-Anthony Towns", ovr: 87 }, { name: "Dennis Rodman", ovr: 88 }, { name: "Chris Bosh", ovr: 88 }, { name: "Pau Gasol", ovr: 89 }, { name: "Amare Stoudemire", ovr: 87 },
+            { name: "Jaren Jackson Jr.", ovr: 87 }, { name: "Pascal Siakam", ovr: 88 }, { name: "Evan Mobley", ovr: 86 }, { name: "Aaron Gordon", ovr: 84 }, { name: "Julius Randle", ovr: 85 },
+            { name: "Kyle Kuzma", ovr: 83 }, { name: "Tim Duncan", ovr: 97 }, { name: "Giannis Antetokounmpo", ovr: 96 }, { name: "Kevin Garnett", ovr: 95 }, { name: "Dirk Nowitzki", ovr: 94 }
         ],
         C: [
-            { name: "Shaquille O'Neal", ovr: 98 },
-            { name: "Nikola Jokic", ovr: 98 },
-            { name: "Kareem Abdul-Jabbar", ovr: 99 },
-            { name: "Hakeem Olajuwon", ovr: 97 },
-            { name: "Joel Embiid", ovr: 96 },
-            { name: "Victor Wembanyama", ovr: 94 },
-            { name: "Wilt Chamberlain", ovr: 97 },
-            { name: "Bam Adebayo", ovr: 89 },
-            { name: "Rudy Gobert", ovr: 85 },
-            { name: "Chet Holmgren", ovr: 88 },
-            { name: "Bill Russell", ovr: 96 },
-            { name: "David Robinson", ovr: 95 },
-            { name: "Patrick Ewing", ovr: 93 },
-            { name: "Alonzo Mourning", ovr: 90 },
-            { name: "Kristaps Porzingis", ovr: 87 },
-            { name: "Jarrett Allen", ovr: 85 },
-            { name: "Myles Turner", ovr: 84 },
-            { name: "Brook Lopez", ovr: 82 },
-            { name: "Jonas Valanciunas", ovr: 82 }
+            { name: "Shaquille O'Neal", ovr: 98 }, { name: "Nikola Jokic", ovr: 98 }, { name: "Kareem Abdul-Jabbar", ovr: 99 }, { name: "Hakeem Olajuwon", ovr: 97 }, { name: "Joel Embiid", ovr: 96 },
+            { name: "Victor Wembanyama", ovr: 94 }, { name: "Wilt Chamberlain", ovr: 97 }, { name: "Bam Adebayo", ovr: 89 }, { name: "Rudy Gobert", ovr: 85 }, { name: "Chet Holmgren", ovr: 88 },
+            { name: "Bill Russell", ovr: 96 }, { name: "David Robinson", ovr: 95 }, { name: "Patrick Ewing", ovr: 93 }, { name: "Alonzo Mourning", ovr: 90 }, { name: "Kristaps Porzingis", ovr: 87 },
+            { name: "Jarrett Allen", ovr: 85 }, { name: "Myles Turner", ovr: 84 }, { name: "Brook Lopez", ovr: 82 }, { name: "Jonas Valanciunas", ovr: 82 }
         ]
-    };
+};
 
-    Object.keys(playersDB).forEach(pos => {
-        playersDB[pos].forEach(p => p.cost = getPlayerCost(p.ovr));
+Object.keys(playersDB).forEach(pos => {
+    playersDB[pos].forEach(p => p.cost = getPlayerCost(p.ovr));
+});
+
+const positions = ["PG", "SG", "SF", "PF", "C"];
+let activeDraftPos = "PG";
+let userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+let opponentTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+let catalogChoices = { PG: [], SG: [], SF: [], PF: [], C: [] };
+
+function initGame() {
+    positions.forEach(pos => {
+        let options = [...playersDB[pos]].sort(() => 0.5 - Math.random());
+        opponentTeam[pos] = options.find(p => p.cost <= 3.2) || options[options.length-1];
+        let pool = playersDB[pos].filter(p => p.name !== opponentTeam[pos].name).sort(() => 0.5 - Math.random());
+        catalogChoices[pos] = pool.slice(0, 4);
     });
+    activeDraftPos = "PG";
+    userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+    let totalOpponentCost = positions.reduce((sum, pos) => sum + opponentTeam[pos].cost, 0);
+    document.getElementById('opponent-section').querySelector('h2').innerText = `Opponent Lineup (Total Cost: $${totalOpponentCost.toFixed(1)}M)`;
+    renderOpponentLineup();
+    updateHudAndCatalog();
+}
 
-    const positions = ["PG", "SG", "SF", "PF", "C"];
-    let currentPositionIndex = 0;
-    let cashBank = 15.0;
-    let userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-    let opponentTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+function changeActivePosition(pos) {
+    activeDraftPos = pos;
+    updateHudAndCatalog();
+}
 
-    function initGame() {
-        positions.forEach(pos => {
-            let options = [...playersDB[pos]].sort(() => 0.5 - Math.random());
-            opponentTeam[pos] = options.find(p => p.cost <= 3.2) || options[options.length-1];
-        });
-        let totalOpponentCost = positions.reduce((sum, pos) => sum + opponentTeam[pos].cost, 0);
-        document.getElementById('opponent-section').querySelector('h2').innerText = `Opponent Lineup (Total Cost: $${totalOpponentCost.toFixed(1)}M)`;
-        renderOpponentLineup();
-        renderUserLineup();
-        generateDraftCatalog();
-    }
+function calculateRemainingBudget() {
+    let spent = 0;
+    positions.forEach(pos => {
+        if (userTeam[pos]) spent += userTeam[pos].cost;
+    });
+    return 15.0 - spent;
+}
 
-    function resetToNewCampaign() {
-        currentPositionIndex = 0;
-        cashBank = 15.0;
-        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-        opponentTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-        document.getElementById('sim-section').style.display = 'none';
-        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
-        document.getElementById('draft-section').style.display = 'block';
-        initGame();
-    }
+function updateHudAndCatalog() {
+    let currentRemaining = calculateRemainingBudget();
+    const bankEl = document.getElementById('hud-bank');
+    bankEl.innerText = `$${currentRemaining.toFixed(1)}M`;
+    bankEl.className = currentRemaining < 0 ? 'bankrupt' : '';
+    document.getElementById('hud-pos').innerText = activeDraftPos;
+    renderUserLineup();
+    renderDraftCatalog(currentRemaining);
+    checkSimulationReady();
+}
 
-    function retrySameMatch() {
-        currentPositionIndex = 0;
-        cashBank = 15.0;
-        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-        document.getElementById('sim-section').style.display = 'none';
-        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
-        document.getElementById('draft-section').style.display = 'block';
-        renderUserLineup();
-        generateDraftCatalog();
-    }
+function renderOpponentLineup() {
+    const oppDiv = document.getElementById('opponent-lineup');
+    oppDiv.innerHTML = positions.map(pos => {
+        const p = opponentTeam[pos];
+        return `<div class="card">
+            <div class="pos-label">${pos}</div>
+            \${render8BitFaceHTML(p.name)}
+            <strong>\${p.name}</strong>
+            <span class="badge price">-\$\${p.cost.toFixed(1)}M</span>
+            <span class="badge ovr-badge">\${p.ovr} OVR</span>
+        </div>`;
+    }).join('');
+}
 
-    function renderOpponentLineup() {
-        const oppDiv = document.getElementById('opponent-lineup');
-        oppDiv.innerHTML = positions.map(pos => {
-            const p = opponentTeam[pos];
-            return `
-                <div class="card">
-                    <div class="pos-label">${pos}</div>
-                    ${render8BitFaceHTML(p.name)}
-                    <strong>${p.name}</strong>
-                    <span class="badge price">-$${p.cost.toFixed(1)}M</span>
-                </div>
-            `;
-        }).join('');
-    }
+function renderUserLineup() {
+    const userDiv = document.getElementById('user-lineup');
+    userDiv.innerHTML = positions.map(pos => {
+        const p = userTeam[pos];
+        const isCurrent = pos === activeDraftPos ? 'selected-pos' : '';
+        return `<div class="card active \${isCurrent}" onclick="changeActivePosition('\${pos}')">
+            <div class="pos-label">\${pos}</div>
+            \${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>'}
+            <strong>\${p ? p.name : 'Empty Slot'}</strong>
+            <div>
+                \${p ? `-\$\${p.cost.toFixed(1)}M (\${p.ovr} OVR)` : '<span style="color:#555; font-size:0.85em;">Click to Draft</span>'}
+            </div>
+        </div>`;
+    }).join('');
+}
 
-    function renderUserLineup() {
-        const userDiv = document.getElementById('user-lineup');
-        userDiv.innerHTML = positions.map(pos => {
-            const p = userTeam[pos];
-            return `
-                <div class="card" style="${!p ? 'border-style: dashed; background: transparent;' : ''}">
-                    <div class="pos-label">${pos}</div>
-                    ${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#444;">?</div>'}
-                    <strong>${p ? p.name : 'Empty'}</strong>
-                    ${p ? `<span class="badge price">-$${p.cost.toFixed(1)}M</span>` : ''}
-                </div>
-            `;
-        }).join('');
-        const bankEl = document.getElementById('hud-bank');
-        bankEl.innerText = `$${cashBank.toFixed(1)}M`;
-        if (cashBank <= 1.5) bankEl.className = 'bankrupt';
-    }
+function renderDraftCatalog(currentRemaining) {
+    const catalogDiv = document.getElementById('draft-catalog');
+    let choices = catalogChoices[activeDraftPos];
+    catalogDiv.innerHTML = choices.map(p => {
+        let currentPickCost = userTeam[activeDraftPos] ? userTeam[activeDraftPos].cost : 0;
+        let netBudgetChange = currentRemaining + currentPickCost;
+        const dynamicLocked = p.cost > netBudgetChange;
+        const isCurrentlyPicked = userTeam[activeDraftPos] && userTeam[activeDraftPos].name === p.name ? 'border-color: #4caf50; background: #1c2d1e;' : '';
+        return `<div class="card active \${dynamicLocked ? 'disabled' : ''}" style="\${isCurrentlyPicked}" onclick="\${dynamicLocked ? '' : `pickPlayer('\${activeDraftPos}', '\${p.name}', \${p.ovr}, \${p.cost})`}">
+            \${render8BitFaceHTML(p.name)}
+            <strong>\${p.name}</strong>
+            <div>
+                <span class="badge price">\$\${p.cost.toFixed(1)}M</span>
+                <span class="badge ovr-badge">\${p.ovr} OVR</span>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-    function generateDraftCatalog() {
-        if (currentPositionIndex >= positions.length) {
-            document.getElementById('draft-section').style.display = 'none';
-            document.getElementById('sim-section').style.display = 'block';
-            return;
+function pickPlayer(pos, name, ovr, cost) {
+    userTeam[pos] = { name, ovr, cost };
+    let nextIndex = positions.indexOf(pos) + 1;
+    if (nextIndex < positions.length) {
+        let foundEmpty = false;
+        for(let i = nextIndex; i < positions.length; i++) {
+            if(!userTeam[positions[i]]) {
+                activeDraftPos = positions[i];
+                foundEmpty = true;
+                break;
+            }
         }
-        const currentPos = positions[currentPositionIndex];
-        document.getElementById('hud-pos').innerText = currentPos;
-        let rawChoices = playersDB[currentPos].filter(p => p.name !== opponentTeam[currentPos].name).sort(() => 0.5 - Math.random());
-        let affordable = rawChoices.filter(p => p.cost <= cashBank);
-        if (affordable.length === 0) {
-            let cheapest = [...playersDB[currentPos]].filter(p => p.name !== opponentTeam[currentPos].name).sort((a,b) => a.cost - b.cost);
-            rawChoices = [cheapest, ...rawChoices.filter(x => x.name !== cheapest.name).slice(0,3)];
-        } else {
-            rawChoices = rawChoices.slice(0, 4);
+        if(!foundEmpty) {
+            for(let i = 0; i < positions.length; i++) {
+                if(!userTeam[positions[i]]) {
+                    activeDraftPos = positions[i];
+                    break;
+                }
+            }
         }
-        const catalogDiv = document.getElementById('draft-catalog');
-        catalogDiv.innerHTML = rawChoices.map(p => {
-            const dynamicLocked = p.cost > cashBank;
-            return `
-                <div class="card active ${dynamicLocked ? 'disabled' : ''}" 
-                     onclick="${dynamicLocked ? '' : `pickPlayer('${currentPos}', '${p.name}', ${p.ovr}, ${p.cost})`}">
-                    ${render8BitFaceHTML(p.name)}
-                    <strong>${p.name}</strong>
-                    <span class="badge price">$${p.cost.toFixed(1)}M</span>
-                </div>
-            `;
-        }).join('');
+    } else {
+        for(let i = 0; i < positions.length; i++) {
+            if(!userTeam[positions[i]]) {
+                activeDraftPos = positions[i];
+                break;
+            }
+        }
     }
+    updateHudAndCatalog();
+}
 
-    function pickPlayer(pos, name, ovr, cost) {
-        userTeam[pos] = { name, ovr, cost };
-        cashBank -= cost;
-        renderUserLineup();
-        currentPositionIndex++;
-        generateDraftCatalog();
+function checkSimulationReady() {
+    let complete = true;
+    positions.forEach(pos => {
+        if (!userTeam[pos]) complete = false;
+    });
+    let budgetValid = calculateRemainingBudget() >= 0;
+    const simSection = document.getElementById('sim-section');
+    if (complete && budgetValid) {
+        simSection.style.display = 'block';
+    } else {
+        simSection.style.display = 'none';
     }
+}
 
-    function startLiveSimulation() {
-        const container = document.getElementById('sim-section');
-        container.innerHTML = `<button class="btn" id="sim-btn" style="display:none;">▶ Start Simulation</button><div id="sim-results" class="status-box"></div>`;
-        const resultsDiv = document.getElementById('sim-results');
+function startLiveSimulation() {
+    const container = document.getElementById('sim-section');
+    container.innerHTML = `<button class="btn" id="sim-btn" style="display:none;">▶ Start Simulation</button><div id="sim-results" class="status-box"></div>`;
+    const resultsDiv = document.getElementById('sim-results');
         const userOVR = positions.reduce((sum, pos) => sum + userTeam[pos].ovr, 0) / 5;
         const oppOVR = positions.reduce((sum, pos) => sum + opponentTeam[pos].ovr, 0) / 5;
         let currentGame = 0;
         let userWins = 0;
         let oppWins = 0;
         const totalGames = 82;
+        
         const simInterval = setInterval(() => {
             currentGame++;
             let baselineChance = 0.50;
             if (userOVR > oppOVR) baselineChance = 0.62;
             if (userOVR < oppOVR - 1.5) baselineChance = 0.38;
+            
             let userChance = Math.max(0.20, Math.min(0.80, baselineChance));
             if (Math.random() < userChance) userWins++;
             if (Math.random() < 0.50) oppWins++;
+            
             resultsDiv.innerHTML = `
                 <h3>🔄 Live Simulating Regular Season Outcomes...</h3>
                 <div class="live-counter">
@@ -541,11 +513,12 @@
                 </div>
                 <div style="color:#888; font-size: 0.9em;">Processing Match ${currentGame} of ${totalGames}</div>
             `;
+            
             if (currentGame >= totalGames) {
                 clearInterval(simInterval);
                 displayFinalGraphicResults(userWins, oppWins);
             }
-        }, 35); 
+        }, 35);
     }
 
     function displayFinalGraphicResults(userWins, oppWins) {
@@ -557,6 +530,7 @@
                 <button class="btn" onclick="resetToNewCampaign()" style="background: #fff; color: #000; margin: 0;">🎮 New Game</button>
             </div>
         `;
+        
         let graphicHTML = `
             <div class="result-graphic ${isWin ? 'win' : 'loss'}">
                 <div class="graphic-title">${isWin ? '🏆 Victory' : '❌ Defeat'}</div>
@@ -580,6 +554,20 @@
         `;
         container.innerHTML = graphicHTML;
     }
+
+    function resetToNewCampaign() {
+        initGame();
+    }
+
+    function retrySameMatch() {
+        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+        activeDraftPos = "PG";
+        document.getElementById('sim-section').style.display = 'none';
+        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
+        document.getElementById('draft-section').style.display = 'block';
+        updateHudAndCatalog();
+    }
+
     window.onload = initGame;
 </script>
 </body>
