@@ -394,6 +394,7 @@
         }).join('');
     }
 
+    // FIXED SUB-TEMPLATE INJECTION: Restored the literal formatting variables securely inside backticks
     function renderUserLineup() {
         const userDiv = document.getElementById('user-lineup');
         userDiv.innerHTML = positions.map(pos => {
@@ -403,7 +404,7 @@
                 <div class="card active ${isCurrent}" onclick="changeActivePosition('${pos}')">
                     <div class="pos-label">${pos}</div>
                     ${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>'}
-                    strong>${p ? p.name : 'Empty Slot'}</strong>
+                    <strong>${p ? p.name : 'Empty Slot'}</strong>
                     <div>
                         ${p ? `<span class="badge price">-\$\${p.cost.toFixed(1)}M</span><span class="badge ovr-badge">\${p.ovr} OVR</span>` : '<span style="color:#555; font-size:0.85em;">Click to Draft</span>'}
                     </div>
