@@ -412,11 +412,12 @@
         }).join('');
     }
 
+    // FIXED PARAMETER REFERENCE: Handlers are mapped cleanly without nested backtick syntax errors
     function renderDraftCatalog(currentRemaining) {
         const catalogDiv = document.getElementById('draft-catalog');
         let choices = catalogChoices[activeDraftPos];
         
-        catalogDiv.innerHTML = choices.map(p => {
+        catalogDiv.innerHTML = choices.map((p, index) => {
             let currentPickCost = userTeam[activeDraftPos] ? userTeam[activeDraftPos].cost : 0;
             let netBudgetChange = currentRemaining + currentPickCost;
             const dynamicLocked = p.cost > netBudgetChange;
@@ -424,7 +425,7 @@
 
             return `
                 <div class="card active ${dynamicLocked ? 'disabled' : ''}" style="${isCurrentlyPicked}"
-                     onclick="${dynamicLocked ? '' : `pickPlayer('activeDraftPos', '{p.name}', p.ovr, {p.cost})`}">
+                     onclick="${dynamicLocked ? '' : `executePlayerSelection(\${index})`}">
                     ${render8BitFaceHTML(p.name)}
                     <strong>${p.name}</strong>
                     <div>
@@ -434,6 +435,11 @@
                 </div>
             `;
         }).join('');
+    }
+
+    function executePlayerSelection(index) {
+        let player = catalogChoices[activeDraftPos][index];
+        pickPlayer(activeDraftPos, player.name, player.ovr, player.cost);
     }
 
     function pickPlayer(pos, name, ovr, cost) {
