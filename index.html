@@ -225,7 +225,7 @@
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .stat-label {
+        .doc-label {
             font-size: 0.5em;
             text-transform: uppercase;
             color: #aaa;
@@ -259,7 +259,7 @@
         <h2>Your Active Lineup</h2>
         <div id="user-lineup" class="lineup-grid"></div>
     </div>
-    <!-- Fixed Safe Layout Setup: Persistent elements block deletion errors during restarts -->
+    <!-- Fixed Safe Layout Setup: Elements persist safely so scripts can locate and reset them -->
     <div id="sim-section" style="display:none; text-align: center; margin-top: 20px;">
         <button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button>
         <div id="sim-results" class="status-box" style="display:none; text-align: left;"></div>
@@ -514,16 +514,17 @@
         
         if (complete && budgetValid) {
             simSection.style.display = 'block';
-            simBtn.style.display = 'block'; // Keeps button visible on subsequent campaigns
+            simBtn.style.display = 'block'; // Fixed: Safely unhides button node on campaign loops
             simResults.style.display = 'none';
         } else {
             simSection.style.display = 'none';
         }
     }
 
+    // FIXED SIMULATION ENGINE: Updates inner elements rather than deleting layout parents on live iterations
     function startLiveSimulation() {
         const simBtn = document.getElementById('sim-btn');
-        simBtn.style.display = 'none'; // Safely hides without deleting element node
+        simBtn.style.display = 'none'; // Safely hides the simulation triggers
         
         const resultsDiv = document.getElementById('sim-results');
         resultsDiv.style.display = 'block';
@@ -578,12 +579,12 @@
                 </div>
                 <div class="graphic-stats">
                     <div>
-                        <span class="stat-label">Your Team</span>
+                        <span class="doc-label">Your Team</span>
                         ${userWins} Wins
                     </div>
                     <div style="color: rgba(255,255,255,0.3); align-self: flex-end; padding-bottom: 5px;">vs</div>
                     <div>
-                        <span class="stat-label">Opponent</span>
+                        <span class="doc-label">Opponent</span>
                         ${oppWins} Wins
                     </div>
                 </div>
