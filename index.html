@@ -259,9 +259,10 @@
         <h2>Your Active Lineup</h2>
         <div id="user-lineup" class="lineup-grid"></div>
     </div>
-    <div id="sim-section" style="display:none;">
+    <!-- Fixed Safe Layout Setup: Persistent elements block deletion errors during restarts -->
+    <div id="sim-section" style="display:none; text-align: center; margin-top: 20px;">
         <button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button>
-        <div id="sim-results" class="status-box" style="display:none;"></div>
+        <div id="sim-results" class="status-box" style="display:none; text-align: left;"></div>
     </div>
 </div>
 <script>
@@ -428,7 +429,6 @@
             `;
         }).join('');
     }
-
     function renderDraftCatalog(currentRemaining) {
         const catalogDiv = document.getElementById('draft-catalog');
         let choices = catalogChoices[activeDraftPos];
@@ -509,23 +509,32 @@
         let budgetValid = calculateRemainingBudget() >= 0;
         
         const simSection = document.getElementById('sim-section');
+        const simBtn = document.getElementById('sim-btn');
+        const simResults = document.getElementById('sim-results');
+        
         if (complete && budgetValid) {
             simSection.style.display = 'block';
+            simBtn.style.display = 'block'; // Keeps button visible on subsequent campaigns
+            simResults.style.display = 'none';
         } else {
             simSection.style.display = 'none';
         }
     }
 
     function startLiveSimulation() {
-        const container = document.getElementById('sim-section');
-        container.innerHTML = `<button class="btn" id="sim-btn" style="display:none;">▶ Start Simulation</button><div id="sim-results" class="status-box"></div>`;
+        const simBtn = document.getElementById('sim-btn');
+        simBtn.style.display = 'none'; // Safely hides without deleting element node
+        
         const resultsDiv = document.getElementById('sim-results');
+        resultsDiv.style.display = 'block';
+        
         const userOVR = positions.reduce((sum, pos) => sum + userTeam[pos].ovr, 0) / 5;
         const oppOVR = positions.reduce((sum, pos) => sum + opponentTeam[pos].ovr, 0) / 5;
         let currentGame = 0;
         let userWins = 0;
         let oppWins = 0;
         const totalGames = 82;
+        
         const simInterval = setInterval(() => {
             currentGame++;
             let baselineChance = 0.50;
@@ -534,6 +543,7 @@
             let userChance = Math.max(0.20, Math.min(0.80, baselineChance));
             if (Math.random() < userChance) userWins++;
             if (Math.random() < 0.50) oppWins++; 
+            
             resultsDiv.innerHTML = `
                 <h3>🔄 Live Simulating Regular Season Outcomes...</h3>
                 <div class="live-counter">
@@ -542,6 +552,7 @@
                 </div>
                 <div style="color:#888; font-size: 0.9em;">Processing Match ${currentGame} of ${totalGames}</div>
             `;
+            
             if (currentGame >= totalGames) {
                 clearInterval(simInterval);
                 displayFinalGraphicResults(userWins, oppWins);
@@ -550,7 +561,7 @@
     }
 
     function displayFinalGraphicResults(userWins, oppWins) {
-        const container = document.getElementById('sim-section');
+        const resultsDiv = document.getElementById('sim-results');
         const isWin = userWins >= oppWins;
         let actionButtons = `
             <div class="btn-container">
@@ -558,6 +569,7 @@
                 <button class="btn" onclick="resetToNewCampaign()" style="background: #fff; color: #000; margin: 0;">🎮 New Game</button>
             </div>
         `;
+        
         let graphicHTML = `
             <div class="result-graphic ${isWin ? 'win' : 'loss'}">
                 <div class="graphic-title">${isWin ? '🏆 Victory' : '❌ Defeat'}</div>
@@ -579,7 +591,7 @@
                 ${actionButtons}
             </div>
         `;
-        container.innerHTML = graphicHTML;
+        resultsDiv.innerHTML = graphicHTML;
     }
     
     function resetToNewCampaign() {
@@ -590,7 +602,6 @@
         userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
         activeDraftPos = "PG";
         document.getElementById('sim-section').style.display = 'none';
-        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
         document.getElementById('draft-section').style.display = 'block';
         updateHudAndCatalog();
     }
