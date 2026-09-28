@@ -412,7 +412,6 @@
         }).join('');
     }
 
-    // FIXED PARAMETER REFERENCE: Handlers are mapped cleanly without nested backtick syntax errors
     function renderDraftCatalog(currentRemaining) {
         const catalogDiv = document.getElementById('draft-catalog');
         let choices = catalogChoices[activeDraftPos];
@@ -491,7 +490,7 @@
             resultsDiv.innerHTML = `
                 <h3>🔄 Live Simulating Regular Season Outcomes...</h3>
                 <div class="live-counter">
-                    YOUR SQUAD: <span style="color:#4caf50;">${userWins} W</span> - <span style="color:#e57373;">${currentGame - userWins} L</span><br>
+                    YOUR SQUAD: <span style="color:#4caf50;">${userWins} W</span> - <span style="color:#e57373;">${currentGame - userWins} L</span>br>
                     OPPONENT: <span style="color:#2196f3;">${oppWins} W</span> - <span style="color:#ffb74d;">${currentGame - oppWins} L</span>
                 </div>
                 <div style="color:#888; font-size: 0.9em;">Processing Match ${currentGame} of ${totalGames}</div>
