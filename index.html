@@ -329,7 +329,7 @@
             { name: "Jarrett Allen", ovr: 85 }, { name: "Myles Turner", ovr: 84 }, { name: "Brook Lopez", ovr: 82 }, { name: "Jonas Valanciunas", ovr: 82 }
         ]
     };
-    Object.keys(playersDB).forEach(pos => {
+       Object.keys(playersDB).forEach(pos => {
         playersDB[pos].forEach(p => p.cost = getPlayerCost(p.ovr));
     });
 
@@ -394,20 +394,29 @@
         }).join('');
     }
 
-    // FIXED SUB-TEMPLATE INJECTION: Restored the literal formatting variables securely inside backticks
+    // FIXED SUB-TEMPLATE INJECTION: Stripped broken inline parsing tokens to ensure safe compiling
     function renderUserLineup() {
         const userDiv = document.getElementById('user-lineup');
         userDiv.innerHTML = positions.map(pos => {
             const p = userTeam[pos];
             const isCurrent = pos === activeDraftPos ? 'selected-pos' : '';
+            
+            let cardPortrait = '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>';
+            let cardName = 'Empty Slot';
+            let cardBadges = '<span style="color:#555; font-size:0.85em;">Click to Draft</span>';
+            
+            if (p) {
+                cardPortrait = render8BitFaceHTML(p.name);
+                cardName = p.name;
+                cardBadges = `<span class="badge price">-$${p.cost.toFixed(1)}M</span><span class="badge ovr-badge">${p.ovr} OVR</span>`;
+            }
+            
             return `
                 <div class="card active ${isCurrent}" onclick="changeActivePosition('${pos}')">
                     <div class="pos-label">${pos}</div>
-                    ${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>'}
-                    <strong>${p ? p.name : 'Empty Slot'}</strong>
-                    <div>
-                        ${p ? `<span class="badge price">-\$\${p.cost.toFixed(1)}M</span><span class="badge ovr-badge">\${p.ovr} OVR</span>` : '<span style="color:#555; font-size:0.85em;">Click to Draft</span>'}
-                    </div>
+                    ${cardPortrait}
+                    <strong>${cardName}</strong>
+                    <div>${cardBadges}</div>
                 </div>
             `;
         }).join('');
