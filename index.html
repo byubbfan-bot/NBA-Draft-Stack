@@ -273,7 +273,6 @@
         return 1.2;                
     }
 
-    // FIXED 8-BIT GENERATOR ENGINE: Fills the portrait grid properly to prevent Javascript initialization crashes
     function render8BitFaceHTML(name) {
         let seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const skinColors = ["#dfa070", "#c68a5c", "#a0653d", "#eec590"];
@@ -413,15 +412,16 @@
         }).join('');
     }
 
-    // FIXED PARAMETER BINDINGS: Correctly passes values through the template string safely without parsing literal blocks
     function renderDraftCatalog(currentRemaining) {
         const catalogDiv = document.getElementById('draft-catalog');
         let choices = catalogChoices[activeDraftPos];
+        
         catalogDiv.innerHTML = choices.map(p => {
             let currentPickCost = userTeam[activeDraftPos] ? userTeam[activeDraftPos].cost : 0;
             let netBudgetChange = currentRemaining + currentPickCost;
             const dynamicLocked = p.cost > netBudgetChange;
             const isCurrentlyPicked = userTeam[activeDraftPos] && userTeam[activeDraftPos].name === p.name ? 'border-color: #4caf50; background: #1c2d1e;' : '';
+
             return `
                 <div class="card active ${dynamicLocked ? 'disabled' : ''}" style="${isCurrentlyPicked}"
                      onclick="${dynamicLocked ? '' : `pickPlayer('activeDraftPos', '{p.name}', p.ovr, {p.cost})`}">
