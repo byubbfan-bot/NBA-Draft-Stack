@@ -282,7 +282,6 @@
         let hair = hairColors[(seed >> 2) % hairColors.length];
         let team = jerseyColors[(seed >> 4) % jerseyColors.length];
         let background = "rgba(0,0,0,0.15)";
-        
         let matrix = [,
  ,
  ,
@@ -292,7 +291,6 @@
  ,
             [4,4,4,4,4,4,4,4]
         ];
-        
         let html = '<div class="pixel-portrait">';
         for(let r=0; r<8; r++) {
             for(let c=0; c<8; c++) {
@@ -311,9 +309,9 @@
     const playersDB = {
         PG: [
             { name: "Magic Johnson", ovr: 98 }, { name: "Stephen Curry", ovr: 96 }, { name: "Luka Doncic", ovr: 97 }, { name: "Allen Iverson", ovr: 93 }, { name: "Steve Nash", ovr: 92 },
-{ name: "Shai G.-Alexander", ovr: 95 }, { name: "Kyrie Irving", ovr: 90 }, { name: "Chris Paul", ovr: 89 }, { name: "Jalen Brunson", ovr: 91 }, { name: "Ja Morant", ovr: 90 },
-{ name: "Russell Westbrook", ovr: 88 }, { name: "John Stockton", ovr: 92 }, { name: "Jason Kidd", ovr: 90 }, { name: "Derrick Rose", ovr: 89 }, { name: "Tyrese Haliburton", ovr: 90 },
-{ name: "De'Aaron Fox", ovr: 89 }, { name: "Damian Lillard", ovr: 88 }, { name: "Trae Young", ovr: 87 }, { name: "LaMelo Ball", ovr: 86 }, { name: "Cade Cunningham", ovr: 86 }
+            { name: "Shai G.-Alexander", ovr: 95 }, { name: "Kyrie Irving", ovr: 90 }, { name: "Chris Paul", ovr: 89 }, { name: "Jalen Brunson", ovr: 91 }, { name: "Ja Morant", ovr: 90 },
+            { name: "Russell Westbrook", ovr: 88 }, { name: "John Stockton", ovr: 92 }, { name: "Jason Kidd", ovr: 90 }, { name: "Derrick Rose", ovr: 89 }, { name: "Tyrese Haliburton", ovr: 90 },
+            { name: "De'Aaron Fox", ovr: 89 }, { name: "Damian Lillard", ovr: 88 }, { name: "Trae Young", ovr: 87 }, { name: "LaMelo Ball", ovr: 86 }, { name: "Cade Cunningham", ovr: 86 }
         ],
         SG: [
             { name: "Michael Jordan", ovr: 99 }, { name: "Kobe Bryant", ovr: 98 }, { name: "Dwyane Wade", ovr: 94 }, { name: "Anthony Edwards", ovr: 93 }, { name: "Devin Booker", ovr: 92 },
@@ -339,172 +337,158 @@
             { name: "Bill Russell", ovr: 96 }, { name: "David Robinson", ovr: 95 }, { name: "Patrick Ewing", ovr: 93 }, { name: "Alonzo Mourning", ovr: 90 }, { name: "Kristaps Porzingis", ovr: 87 },
             { name: "Jarrett Allen", ovr: 85 }, { name: "Myles Turner", ovr: 84 }, { name: "Brook Lopez", ovr: 82 }, { name: "Jonas Valanciunas", ovr: 82 }
         ]
-};
-
-Object.keys(playersDB).forEach(pos => {
-    playersDB[pos].forEach(p => p.cost = getPlayerCost(p.ovr));
-});
-
-const positions = ["PG", "SG", "SF", "PF", "C"];
-let activeDraftPos = "PG";
-let userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-let opponentTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-let catalogChoices = { PG: [], SG: [], SF: [], PF: [], C: [] };
-
-function initGame() {
-    positions.forEach(pos => {
-        let options = [...playersDB[pos]].sort(() => 0.5 - Math.random());
-        opponentTeam[pos] = options.find(p => p.cost <= 3.2) || options[options.length-1];
-        let pool = playersDB[pos].filter(p => p.name !== opponentTeam[pos].name).sort(() => 0.5 - Math.random());
-        catalogChoices[pos] = pool.slice(0, 4);
+    };
+    Object.keys(playersDB).forEach(pos => {
+        playersDB[pos].forEach(p => p.cost = getPlayerCost(p.ovr));
     });
-    activeDraftPos = "PG";
-    userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-    let totalOpponentCost = positions.reduce((sum, pos) => sum + opponentTeam[pos].cost, 0);
-    document.getElementById('opponent-section').querySelector('h2').innerText = `Opponent Lineup (Total Cost: $${totalOpponentCost.toFixed(1)}M)`;
-    renderOpponentLineup();
-    updateHudAndCatalog();
-}
 
-function changeActivePosition(pos) {
-    activeDraftPos = pos;
-    updateHudAndCatalog();
-}
+    const positions = ["PG", "SG", "SF", "PF", "C"];
+    let activeDraftPos = "PG"; 
+    let userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+    let opponentTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+    let catalogChoices = { PG: [], SG: [], SF: [], PF: [], C: [] };
 
-function calculateRemainingBudget() {
-    let spent = 0;
-    positions.forEach(pos => {
-        if (userTeam[pos]) spent += userTeam[pos].cost;
-    });
-    return 15.0 - spent;
-}
+    function initGame() {
+        positions.forEach(pos => {
+            let options = [...playersDB[pos]].sort(() => 0.5 - Math.random());
+            opponentTeam[pos] = options.find(p => p.cost <= 3.2) || options[options.length-1];
+            let pool = playersDB[pos].filter(p => p.name !== opponentTeam[pos].name).sort(() => 0.5 - Math.random());
+            catalogChoices[pos] = pool.slice(0, 4);
+        });
+        activeDraftPos = "PG";
+        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+        let totalOpponentCost = positions.reduce((sum, pos) => sum + opponentTeam[pos].cost, 0);
+        document.getElementById('opponent-section').querySelector('h2').innerText = `Opponent Lineup (Total Cost: $${totalOpponentCost.toFixed(1)}M)`;
+        renderOpponentLineup();
+        updateHudAndCatalog();
+    }
 
-function updateHudAndCatalog() {
-    let currentRemaining = calculateRemainingBudget();
-    const bankEl = document.getElementById('hud-bank');
-    bankEl.innerText = `$${currentRemaining.toFixed(1)}M`;
-    bankEl.className = currentRemaining < 0 ? 'bankrupt' : '';
-    document.getElementById('hud-pos').innerText = activeDraftPos;
-    renderUserLineup();
-    renderDraftCatalog(currentRemaining);
-    checkSimulationReady();
-}
+    function changeActivePosition(pos) {
+        activeDraftPos = pos;
+        updateHudAndCatalog();
+    }
 
-function renderOpponentLineup() {
-    const oppDiv = document.getElementById('opponent-lineup');
-    oppDiv.innerHTML = positions.map(pos => {
-        const p = opponentTeam[pos];
-        return `<div class="card">
-            <div class="pos-label">${pos}</div>
-            \${render8BitFaceHTML(p.name)}
-            <strong>\${p.name}</strong>
-            <span class="badge price">-\$\${p.cost.toFixed(1)}M</span>
-            <span class="badge ovr-badge">\${p.ovr} OVR</span>
-        </div>`;
-    }).join('');
-}
+    function calculateRemainingBudget() {
+        let spent = 0;
+        positions.forEach(pos => {
+            if (userTeam[pos]) spent += userTeam[pos].cost;
+        });
+        return 15.0 - spent;
+    }
 
-function renderUserLineup() {
-    const userDiv = document.getElementById('user-lineup');
-    userDiv.innerHTML = positions.map(pos => {
-        const p = userTeam[pos];
-        const isCurrent = pos === activeDraftPos ? 'selected-pos' : '';
-        return `<div class="card active \${isCurrent}" onclick="changeActivePosition('\${pos}')">
-            <div class="pos-label">\${pos}</div>
-            \${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>'}
-            <strong>\${p ? p.name : 'Empty Slot'}</strong>
-            <div>
-                \${p ? `-\$\${p.cost.toFixed(1)}M (\${p.ovr} OVR)` : '<span style="color:#555; font-size:0.85em;">Click to Draft</span>'}
-            </div>
-        </div>`;
-    }).join('');
-}
+    function updateHudAndCatalog() {
+        let currentRemaining = calculateRemainingBudget();
+        const bankEl = document.getElementById('hud-bank');
+        bankEl.innerText = `$${currentRemaining.toFixed(1)}M`;
+        bankEl.className = currentRemaining < 0 ? 'bankrupt' : '';
+        document.getElementById('hud-pos').innerText = activeDraftPos;
+        renderUserLineup();
+        renderDraftCatalog(currentRemaining);
+        checkSimulationReady();
+    }
 
-function renderDraftCatalog(currentRemaining) {
-    const catalogDiv = document.getElementById('draft-catalog');
-    let choices = catalogChoices[activeDraftPos];
-    catalogDiv.innerHTML = choices.map(p => {
-        let currentPickCost = userTeam[activeDraftPos] ? userTeam[activeDraftPos].cost : 0;
-        let netBudgetChange = currentRemaining + currentPickCost;
-        const dynamicLocked = p.cost > netBudgetChange;
-        const isCurrentlyPicked = userTeam[activeDraftPos] && userTeam[activeDraftPos].name === p.name ? 'border-color: #4caf50; background: #1c2d1e;' : '';
-        return `<div class="card active \${dynamicLocked ? 'disabled' : ''}" style="\${isCurrentlyPicked}" onclick="\${dynamicLocked ? '' : `pickPlayer('\${activeDraftPos}', '\${p.name}', \${p.ovr}, \${p.cost})`}">
-            \${render8BitFaceHTML(p.name)}
-            <strong>\${p.name}</strong>
-            <div>
-                <span class="badge price">\$\${p.cost.toFixed(1)}M</span>
-                <span class="badge ovr-badge">\${p.ovr} OVR</span>
-            </div>
-        </div>`;
-    }).join('');
-}
+    function renderOpponentLineup() {
+        const oppDiv = document.getElementById('opponent-lineup');
+        oppDiv.innerHTML = positions.map(pos => {
+            const p = opponentTeam[pos];
+            return `
+                <div class="card">
+                    <div class="pos-label">${pos}</div>
+                    ${render8BitFaceHTML(p.name)}
+                    <strong>${p.name}</strong>
+                    <span class="badge price">-$${p.cost.toFixed(1)}M</span>
+                    <span class="badge ovr-badge">${p.ovr} OVR</span>
+                </div>
+            `;
+        }).join('');
+    }
 
-function pickPlayer(pos, name, ovr, cost) {
-    userTeam[pos] = { name, ovr, cost };
-    let nextIndex = positions.indexOf(pos) + 1;
-    if (nextIndex < positions.length) {
-        let foundEmpty = false;
-        for(let i = nextIndex; i < positions.length; i++) {
-            if(!userTeam[positions[i]]) {
-                activeDraftPos = positions[i];
-                foundEmpty = true;
-                break;
+    function renderUserLineup() {
+        const userDiv = document.getElementById('user-lineup');
+        userDiv.innerHTML = positions.map(pos => {
+            const p = userTeam[pos];
+            const isCurrent = pos === activeDraftPos ? 'selected-pos' : '';
+            return `
+                <div class="card active ${isCurrent}" onclick="changeActivePosition('${pos}')">
+                    <div class="pos-label">${pos}</div>
+                    ${p ? render8BitFaceHTML(p.name) : '<div style="height:40px; margin:8px 0; display:flex; align-items:center; color:#666; font-size:1.5em;">?</div>'}
+                    <strong>${p ? p.name : 'Empty Slot'}</strong>
+                    <div>
+                        ${p ? `<span class="badge price">-\$\${p.cost.toFixed(1)}M</span><span class="badge ovr-badge">\${p.ovr} OVR</span>` : '<span style="color:#555; font-size:0.85em;">Click to Draft</span>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderDraftCatalog(currentRemaining) {
+        const catalogDiv = document.getElementById('draft-catalog');
+        let choices = catalogChoices[activeDraftPos];
+        catalogDiv.innerHTML = choices.map(p => {
+            let currentPickCost = userTeam[activeDraftPos] ? userTeam[activeDraftPos].cost : 0;
+            let netBudgetChange = currentRemaining + currentPickCost;
+            const dynamicLocked = p.cost > netBudgetChange;
+            const isCurrentlyPicked = userTeam[activeDraftPos] && userTeam[activeDraftPos].name === p.name ? 'border-color: #4caf50; background: #1c2d1e;' : '';
+            return `
+                <div class="card active ${dynamicLocked ? 'disabled' : ''}" style="${isCurrentlyPicked}"
+                     onclick="${dynamicLocked ? '' : `pickPlayer('activeDraftPos', '{p.name}', p.ovr, {p.cost})`}">
+                    ${render8BitFaceHTML(p.name)}
+                    <strong>${p.name}</strong>
+                    <div>
+                        <span class="badge price">$${p.cost.toFixed(1)}M</span>
+                        <span class="badge ovr-badge">${p.ovr} OVR</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function pickPlayer(pos, name, ovr, cost) {
+        userTeam[pos] = { name, ovr, cost };
+        let nextIndex = positions.indexOf(pos) + 1;
+        if (nextIndex < positions.length) {
+            let foundEmpty = false;
+            for(let i = nextIndex; i < positions.length; i++) {
+                if(!userTeam[positions[i]]) { activeDraftPos = positions[i]; foundEmpty = true; break; }
             }
-        }
-        if(!foundEmpty) {
-            for(let i = 0; i < positions.length; i++) {
-                if(!userTeam[positions[i]]) {
-                    activeDraftPos = positions[i];
-                    break;
+            if(!foundEmpty) {
+                for(let i = 0; i < positions.length; i++) {
+                    if(!userTeam[positions[i]]) { activeDraftPos = positions[i]; break; }
                 }
             }
-        }
-    } else {
-        for(let i = 0; i < positions.length; i++) {
-            if(!userTeam[positions[i]]) {
-                activeDraftPos = positions[i];
-                break;
+        } else {
+            for(let i = 0; i < positions.length; i++) {
+                if(!userTeam[positions[i]]) { activeDraftPos = positions[i]; break; }
             }
         }
+        updateHudAndCatalog();
     }
-    updateHudAndCatalog();
-}
-
-function checkSimulationReady() {
-    let complete = true;
-    positions.forEach(pos => {
-        if (!userTeam[pos]) complete = false;
-    });
-    let budgetValid = calculateRemainingBudget() >= 0;
-    const simSection = document.getElementById('sim-section');
-    if (complete && budgetValid) {
-        simSection.style.display = 'block';
-    } else {
-        simSection.style.display = 'none';
+    function checkSimulationReady() {
+        let complete = true;
+        positions.forEach(pos => { if (!userTeam[pos]) complete = false; });
+        let budgetValid = calculateRemainingBudget() >= 0;
+        const simSection = document.getElementById('sim-section');
+        if (complete && budgetValid) { simSection.style.display = 'block'; } else { simSection.style.display = 'none'; }
     }
-}
 
-function startLiveSimulation() {
-    const container = document.getElementById('sim-section');
-    container.innerHTML = `<button class="btn" id="sim-btn" style="display:none;">▶ Start Simulation</button><div id="sim-results" class="status-box"></div>`;
-    const resultsDiv = document.getElementById('sim-results');
+    function startLiveSimulation() {
+        const container = document.getElementById('sim-section');
+        container.innerHTML = `<button class="btn" id="sim-btn" style="display:none;">▶ Start Simulation</button><div id="sim-results" class="status-box"></div>`;
+        const resultsDiv = document.getElementById('sim-results');
         const userOVR = positions.reduce((sum, pos) => sum + userTeam[pos].ovr, 0) / 5;
         const oppOVR = positions.reduce((sum, pos) => sum + opponentTeam[pos].ovr, 0) / 5;
         let currentGame = 0;
         let userWins = 0;
         let oppWins = 0;
         const totalGames = 82;
-        
         const simInterval = setInterval(() => {
             currentGame++;
             let baselineChance = 0.50;
             if (userOVR > oppOVR) baselineChance = 0.62;
             if (userOVR < oppOVR - 1.5) baselineChance = 0.38;
-            
             let userChance = Math.max(0.20, Math.min(0.80, baselineChance));
             if (Math.random() < userChance) userWins++;
-            if (Math.random() < 0.50) oppWins++;
-            
+            if (Math.random() < 0.50) oppWins++; 
             resultsDiv.innerHTML = `
                 <h3>🔄 Live Simulating Regular Season Outcomes...</h3>
                 <div class="live-counter">
@@ -513,65 +497,6 @@ function startLiveSimulation() {
                 </div>
                 <div style="color:#888; font-size: 0.9em;">Processing Match ${currentGame} of ${totalGames}</div>
             `;
-            
-            if (currentGame >= totalGames) {
-                clearInterval(simInterval);
-                displayFinalGraphicResults(userWins, oppWins);
-            }
-        }, 35);
-    }
-
-    function displayFinalGraphicResults(userWins, oppWins) {
-        const container = document.getElementById('sim-section');
-        const isWin = userWins >= oppWins;
-        let actionButtons = `
-            <div class="btn-container">
-                ${!isWin ? `<button class="btn" onclick="retrySameMatch()" style="background: #ff9800; color: #000; margin: 0;">🔄 Retry Season</button>` : ''}
-                <button class="btn" onclick="resetToNewCampaign()" style="background: #fff; color: #000; margin: 0;">🎮 New Game</button>
-            </div>
-        `;
-        
-        let graphicHTML = `
-            <div class="result-graphic ${isWin ? 'win' : 'loss'}">
-                <div class="graphic-title">${isWin ? '🏆 Victory' : '❌ Defeat'}</div>
-                <div class="graphic-banner">
-                    ${isWin ? 'Your custom-built lineup dominated the regular season standings!' : 'The opponents out-strategized your cap spacing.'}
-                </div>
-                <div class="graphic-stats">
-                    <div>
-                        <span class="stat-label">Your Team</span>
-                        ${userWins} Wins
-                    </div>
-                    <div style="color: rgba(255,255,255,0.3); align-self: flex-end; padding-bottom: 5px;">vs</div>
-                    <div>
-                        <span class="stat-label">Opponent</span>
-                        ${oppWins} Wins
-                    </div>
-                </div>
-                <div style="margin-bottom: 25px;"></div>
-                ${actionButtons}
-            </div>
-        `;
-        container.innerHTML = graphicHTML;
-    }
-
-    function resetToNewCampaign() {
-        initGame();
-    }
-
-    function retrySameMatch() {
-        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
-        activeDraftPos = "PG";
-        document.getElementById('sim-section').style.display = 'none';
-        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
-        document.getElementById('draft-section').style.display = 'block';
-        updateHudAndCatalog();
-    }
-
-    window.onload = initGame;
-</script>
-</body>
-</html>
             if (currentGame >= totalGames) {
                 clearInterval(simInterval);
                 displayFinalGraphicResults(userWins, oppWins);
@@ -610,6 +535,15 @@ function startLiveSimulation() {
             </div>
         `;
         container.innerHTML = graphicHTML;
+    }
+    function resetToNewCampaign() { initGame(); }
+    function retrySameMatch() {
+        userTeam = { PG: null, SG: null, SF: null, PF: null, C: null };
+        activeDraftPos = "PG";
+        document.getElementById('sim-section').style.display = 'none';
+        document.getElementById('sim-section').innerHTML = `<button class="btn" id="sim-btn" onclick="startLiveSimulation()">▶ Start Simulation</button><div id="sim-results" class="status-box" style="display:none;"></div>`;
+        document.getElementById('draft-section').style.display = 'block';
+        updateHudAndCatalog();
     }
     window.onload = initGame;
 </script>
